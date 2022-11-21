@@ -1,10 +1,10 @@
 import { apiEndpoint } from '../config'
-import { Todo } from '../types/Todo';
-import { CreateTodoRequest } from '../types/CreateTodoRequest';
+import { Task } from '../types/Task';
+import { CreateTaskRequest } from '../types/CreateTaskRequest';
 import Axios from 'axios'
-import { UpdateTodoRequest } from '../types/UpdateTodoRequest';
+import { UpdateTaskRequest } from '../types/UpdateTaskRequest';
 
-export async function getTodos(idToken: string): Promise<Todo[]> {
+export async function getTodos(idToken: string): Promise<Task[]> {
   console.log('Fetching todos')
 
   const response = await Axios.get(`${apiEndpoint}/todos`, {
@@ -19,8 +19,8 @@ export async function getTodos(idToken: string): Promise<Todo[]> {
 
 export async function createTodo(
   idToken: string,
-  newTodo: CreateTodoRequest
-): Promise<Todo> {
+  newTodo: CreateTaskRequest
+): Promise<Task> {
   const response = await Axios.post(`${apiEndpoint}/todos`,  JSON.stringify(newTodo), {
     headers: {
       'Content-Type': 'application/json',
@@ -33,7 +33,7 @@ export async function createTodo(
 export async function patchTodo(
   idToken: string,
   todoId: string,
-  updatedTodo: UpdateTodoRequest
+  updatedTodo: UpdateTaskRequest
 ): Promise<void> {
   await Axios.patch(`${apiEndpoint}/todos/${todoId}`, JSON.stringify(updatedTodo), {
     headers: {

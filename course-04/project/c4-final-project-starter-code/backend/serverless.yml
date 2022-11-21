@@ -24,8 +24,8 @@ provider:
   # Use these variables in the functions and resouorces section below. For example, 
   # ${self:provider.environment.ATTACHMENT_S3_BUCKET}
   environment:
-    TODOS_TABLE: Todos-${self:provider.stage}
-    TODOS_CREATED_AT_INDEX: CreatedAtIndex
+    TASK_TABLE: Todos-${self:provider.stage}
+    TASK_CREATED_AT_INDEX: CreatedAtIndex
     ATTACHMENT_S3_BUCKET: serverless-c4-final-images-236133360132-${self:provider.stage}
     SIGNED_URL_EXPIRATION: 300
     SLS_DEBUG: src/logs
@@ -45,19 +45,19 @@ provider:
         - Effect: Allow
           Action:
             - dynamodb:Query
-          Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODOS_TABLE}/index/${self:provider.environment.TODOS_CREATED_AT_INDEX}
+          Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TASK_TABLE}/index/${self:provider.environment.TASK_CREATED_AT_INDEX}
 
 custom:
   documentation:
     api:
       info:
         version: v1.0.0
-        title: Udagram Todo app API
-        description: Serverless application for todo app
+        title: Udagram Task manager app API
+        description: Serverless application for task manager app
     models:
-      - name: TodoRequest
+      - name: TaskRequest
         contentType: application/json
-        schema: ${file(models/create-todo-model.json)}   
+        schema: ${file(models/create-task-model.json)}   
 
 functions:
 
@@ -66,8 +66,8 @@ functions:
 
   # TODO: Configure this function - 
   # Provide iamRoleStatements property for performing Actions on DynamoDB
-  GetTodos:
-    handler: src/lambda/http/getTodos.handler
+  GetTask:
+    handler: src/lambda/http/getTask.handler
     events:
       - http:
           method: get
@@ -79,15 +79,15 @@ functions:
         Action:
           - dynamodb:Scan
           - dynamodb:Query
-        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODOS_TABLE}
+        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TASK_TABLE}
 
 
   # TODO: Configure this function - 
   # Provide iamRoleStatements property. Decide the Actions and AWS Resource. 
   # To refer to an AWS resource defined in the "Resources" section, you can use "Resource: !GetAtt <resource-name>.Arn"
   # To validate incoming HTTP requests, we have provided the request schemas in function definition below. 
-  CreateTodo:
-    handler: src/lambda/http/createTodo.handler
+  CreateTask:
+    handler: src/lambda/http/createTask.handler
     events:
       - http:
           method: post
@@ -99,21 +99,21 @@ functions:
             summary: Lambda function to create a new group
             description: Lambda function to create a new group
             requestModels:
-              'application/json': TodoRequest
+              'application/json': TaskRequest
           request:
             schemas:
-              application/json: ${file(models/create-todo-model.json)}
+              application/json: ${file(models/create-task-model.json)}
     iamRoleStatements:
       - Effect: Allow
         Action:
           - dynamodb:Query
           - dynamodb:PutItem
-        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODOS_TABLE}
+        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TASK_TABLE}
 
   # TODO: Configure this function
   # Provide property for setting up CORS, Authorizer, iamRoleStatements, and request schemas
-  UpdateTodo:
-    handler: src/lambda/http/updateTodo.handler
+  UpdateTask:
+    handler: src/lambda/http/updateTask.handler
     events:
       - http:
           method: patch
@@ -122,18 +122,18 @@ functions:
           authorizer: Auth
           request:
             schemas:
-              application/json: ${file(models/update-todo-model.json)}
+              application/json: ${file(models/update-task-model.json)}
     iamRoleStatements:
       - Effect: Allow
         Action:
           - dynamodb:Query
           - dynamodb:UpdateItem
-        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODOS_TABLE}
+        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TASK_TABLE}
 
   # TODO: Configure this function
   # Provide property for setting up CORS, Authorizer, iamRoleStatements
-  DeleteTodo:
-    handler: src/lambda/http/deleteTodo.handler
+  DeleteTask:
+    handler: src/lambda/http/deleteTask.handler
     events:
       - http:
           method: delete
@@ -145,7 +145,7 @@ functions:
         Action:
           - dynamodb:Query
           - dynamodb:DeleteItem
-        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODOS_TABLE}
+        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TASK_TABLE}
 
   # TODO: Configure this function
   # Provide property for setting up CORS, Authorizer, iamRoleStatements
@@ -162,7 +162,7 @@ functions:
         Action:
           - dynamodb:Query
           - dynamodb:UpdateItem
-        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODOS_TABLE}
+        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TASK_TABLE}
       - Effect: Allow
         Action:
           - s3:GetObject
@@ -217,9 +217,9 @@ resources:
           - AttributeName: todoId
             KeyType: RANGE
         BillingMode: PAY_PER_REQUEST
-        TableName: ${self:provider.environment.TODOS_TABLE}
+        TableName: ${self:provider.environment.TASK_TABLE}
         LocalSecondaryIndexes:
-          - IndexName: ${self:provider.environment.TODOS_CREATED_AT_INDEX}
+          - IndexName: ${self:provider.environment.TASK_CREATED_AT_INDEX}
             KeySchema:
               - AttributeName: userId
                 KeyType: HASH

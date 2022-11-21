@@ -4,7 +4,7 @@ import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda'
 import * as middy from 'middy'
 import { cors, httpErrorHandler } from 'middy/middlewares'
 
-import { updatePresignedUrlForTodo } from '../../businessLogic/todos'
+import { updatePresignedUrlForTask } from '../../businessLogic/task'
 import { getUserId } from '../utils'
 
 import * as uuid from 'uuid'
@@ -18,7 +18,7 @@ export const handler = middy(
     const attachmentId = uuid.v4()
     const presignedUrl: string = await createPresignedUrl(attachmentId)
 
-    await updatePresignedUrlForTodo(userId, todoId, attachmentId)
+    await updatePresignedUrlForTask(userId, todoId, attachmentId)
 
     return {
       statusCode: 200,

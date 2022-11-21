@@ -1,5 +1,5 @@
-import { TodosAccess } from '../../src/dataLayer/todosAcess'
-import * as Todo from '../../src/businessLogic/todos'
+import { TaskAccess } from '../../src/dataLayer/taskAcess'
+import * as Todo from '../../src/businessLogic/task'
 
 jest.mock('../../src/dataLayer/todosAcess')
 
@@ -9,7 +9,7 @@ const todo = {
     userId: 'user-id'
 }
 
-const todoAccess = (TodosAccess as any).mock.instances[0]
+const todoAccess = (TaskAccess as any).mock.instances[0]
 
 test('get todo should return todo data from the access layer', async () => {
     await todoAccess.getTodosByUserId.mockResolvedValue(todo)
@@ -20,7 +20,7 @@ test('get todo should return todo data from the access layer', async () => {
 })
 
 test('delete todo successfully from the access layer', async () => {
-    await Todo.deleteTodo(todo.todoId,todo.userId)
+    await Todo.deleteTask(todo.todoId,todo.userId)
 
     expect(todoAccess.deleteTodo).toHaveBeenCalledWith(todo.todoId,todo.userId)
 })

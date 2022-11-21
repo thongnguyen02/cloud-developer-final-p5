@@ -1,4 +1,4 @@
-import {TodosAccess} from '../../src/dataLayer/todosAcess'
+import {TaskAccess} from '../../src/dataLayer/taskAcess'
 
 const todo = {
     todoId: 'todo-id',
@@ -17,14 +17,14 @@ const dynamoDbClient: any = {
     }),
 }
 
-const todoAccess = new TodosAccess(dynamoDbClient)
+const todoAccess = new TaskAccess(dynamoDbClient)
 
 test('test get todo when it existed', async () => {
     getPromise.mockResolvedValue({
         Items: todo
     })
 
-    const result = await todoAccess.getTodosByUserId(todo.userId)
+    const result = await todoAccess.getTaskByUserId(todo.userId)
 
     expect(result).toEqual(todo)
 })
@@ -34,7 +34,7 @@ test('test get todo when it does not exist', async () => {
         Items: null
     })
 
-    const result = await todoAccess.getTodosByUserId(todo.userId)
+    const result = await todoAccess.getTaskByUserId(todo.userId)
 
     expect(result).toEqual(null)
 })

@@ -4,13 +4,13 @@ import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda'
 import * as middy from 'middy'
 import { cors } from 'middy/middlewares'
 
-import { getTodosByUserId as getTodosByUserId } from '../../businessLogic/todos'
+import { getTaskByUserId } from '../../businessLogic/task'
 import { getUserId } from '../utils';
 
 export const handler = middy(
   async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
     const userId = getUserId(event)
-    const todos = await getTodosByUserId(userId)
+    const task = await getTaskByUserId(userId)
 
     return {
       statusCode: 200,
@@ -19,7 +19,7 @@ export const handler = middy(
         'Access-Control-Allow-Credentials': true
     },
       body: JSON.stringify({
-        items: todos
+        items: task
       })
     }
 })
