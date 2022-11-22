@@ -14,7 +14,7 @@ import {
   Loader
 } from 'semantic-ui-react'
 
-import { createTodo, deleteTodo, getTodos, patchTodo } from '../api/todos-api'
+import { createTodo, deleteTodo, getTodos, patchTodo, searchTodo } from '../api/todos-api'
 import Auth from '../auth/Auth'
 import { Todo } from '../types/Todo'
 
@@ -26,6 +26,7 @@ interface TodosProps {
 interface TodosState {
   todos: Todo[]
   newTodoName: string
+  searchString: string
   loadingTodos: boolean
 }
 
@@ -33,6 +34,7 @@ export class Todos extends React.PureComponent<TodosProps, TodosState> {
   state: TodosState = {
     todos: [],
     newTodoName: '',
+    searchString: '',
     loadingTodos: true
   }
 
@@ -40,8 +42,28 @@ export class Todos extends React.PureComponent<TodosProps, TodosState> {
     this.setState({ newTodoName: event.target.value })
   }
 
+  handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    this.setState({ searchString: event.target.value })
+  }
+
   onEditButtonClick = (todoId: string) => {
     this.props.history.push(`/todos/${todoId}/edit`)
+  }
+
+  onTodoSearch = async (event: React.ChangeEvent<HTMLButtonElement>) => {
+    try {
+      const todo = await searchTodo(this.props.auth.getIdToken(), this.state.searchString)
+      if(todo.length == 0) {
+        alert('No todo found')
+        return
+      }
+      this.setState({
+        todos: todo,
+        newTodoName: ''
+      })
+    } catch {
+      alert('Todo search failed')
+    }
   }
 
   onTodoCreate = async (event: React.ChangeEvent<HTMLButtonElement>) => {
@@ -108,6 +130,8 @@ export class Todos extends React.PureComponent<TodosProps, TodosState> {
 
         {this.renderCreateTodoInput()}
 
+        {this.renderSearchTodoInput()}
+        
         {this.renderTodos()}
       </div>
     )
@@ -152,6 +176,31 @@ export class Todos extends React.PureComponent<TodosProps, TodosState> {
         <Loader indeterminate active inline="centered">
           Loading data
         </Loader>
+      </Grid.Row>
+    )
+  }
+
+  renderSearchTodoInput() {
+    return (
+      <Grid.Row>
+        <Grid.Column width={16}>
+          <Input
+            action={{
+              color: 'orange',
+              labelPosition: 'left',
+              icon: 'add',
+              content: 'Search todo',
+              onClick: this.onTodoSearch
+            }}
+            fluid
+            actionPosition="left"
+            placeholder="Input todo name..."
+            onChange={this.handleSearchChange}
+          />
+        </Grid.Column>
+        <Grid.Column width={16}>
+          <Divider />
+        </Grid.Column>
       </Grid.Row>
     )
   }

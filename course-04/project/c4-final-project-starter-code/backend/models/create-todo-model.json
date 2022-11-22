@@ -3,7 +3,7 @@
   "title": "group",
   "type": "object",
   "properties": {
-    "name": {
+    "todoName": {
       "type": "string",
       "minLength": 5
     },
@@ -12,7 +12,7 @@
     }
   },
   "required": [
-    "name",
+    "todoName",
     "dueDate"
   ],
   "additionalProperties": false

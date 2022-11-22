@@ -14,6 +14,10 @@ export async function getTodosByUserId(userId: string) {
     return await todosAccess.getTodosByUserId(userId)
 }
 
+export async function getTodosForUserByName(userId: string, name: string): Promise<TodoItem[]> {
+    return todosAccess.getTodosForUserByName(userId, name)
+}
+
 export async function createTodo(userId: string, createTodoRequest: CreateTodoRequest) {
     const todoId = uuid.v4()
     const createdAt = new Date().toISOString()
@@ -21,7 +25,7 @@ export async function createTodo(userId: string, createTodoRequest: CreateTodoRe
     return await todosAccess.createTodo({
         userId: userId,
         todoId: todoId,
-        name: createTodoRequest.name,
+        todoName: createTodoRequest.todoName,
         createdAt: createdAt,
         dueDate: createTodoRequest.dueDate,
         done: false
@@ -33,7 +37,7 @@ export async function updateTodo(userId: string, todoId: string, updateTodoReque
         userId, 
         todoId,
         {
-            name: updateTodoRequest.name,
+            todoName: updateTodoRequest.todoName,
             dueDate: updateTodoRequest.dueDate,
             done: updateTodoRequest.done
         }
@@ -48,7 +52,7 @@ export async function updatePresignedUrlForTodo(userId: string, todoId: string, 
         userId, 
         todoId,
         {
-            name: todoItem.name,
+            todoName: todoItem.todoName,
             attachmentUrl: attachmentUrl,
             dueDate: todoItem.dueDate,
             done: todoItem.done,    

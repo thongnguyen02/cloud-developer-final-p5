@@ -11,6 +11,7 @@ export class TodosAccess {
     constructor(
         private readonly docClient: DocumentClient = new AWS.DynamoDB.DocumentClient(),
         private readonly todosTable = process.env.TODOS_TABLE,
+        private readonly todosIndex = process.env.TODOS_CREATED_AT_INDEX,
         private readonly logger = createLogger('todos-access')) {
     }
 
@@ -48,6 +49,25 @@ export class TodosAccess {
         return items[0] as TodoItem
     }
     
+    async getTodosForUserByName(userId: string, name: string): Promise<TodoItem[]> {
+        this.logger.info(`search todo for userId: ${userId} by name: ${name}`)
+
+        const result = await this.docClient.query({
+            TableName: this.todosTable,
+            // IndexName: this.todosIndex,
+            // FilterExpression: 'name = :name',
+            KeyConditionExpression: 'userId = :userId AND name = :todoName',
+            ExpressionAttributeValues: {
+                ':userId': userId,
+                ':todoName': name
+            }
+        }).promise()
+
+        this.logger.info('Data query:', result.Items)
+        const items = result.Items
+        return items as TodoItem[]
+    }
+
     async createTodo(todoItem: TodoItem): Promise<TodoItem> {
         this.logger.info(`Creating todo item with id ${todoItem.todoId} for user ${todoItem.userId}.`)
 
@@ -82,7 +102,7 @@ export class TodosAccess {
                 '#username': 'name'
             },
             ExpressionAttributeValues: {
-                ':username': todoItem.name,
+                ':username': todoItem.todoName,
                 ':dueDate': todoItem.dueDate,
                 ':done': todoItem.done
             }
