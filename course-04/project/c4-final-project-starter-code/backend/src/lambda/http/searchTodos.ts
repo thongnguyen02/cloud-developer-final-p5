@@ -10,6 +10,7 @@ import {TodoItem} from "../../models/TodoItem";
 
 export const handler = middy(
     async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
+        
         const name = event.pathParameters.name
 
         const result: TodoItem[] = await getTodosForUserByName(getUserId(event),name)

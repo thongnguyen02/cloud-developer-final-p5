@@ -41,6 +41,9 @@ provider:
           Action:
             - xray:PutTelemetryRecords
             - xray:PutTraceSegments
+            - logs:PutLogEvents
+            - logs:CreateLogStream
+            - logs:CreateLogGroup
           Resource: "*"
         - Effect: Allow
           Action:

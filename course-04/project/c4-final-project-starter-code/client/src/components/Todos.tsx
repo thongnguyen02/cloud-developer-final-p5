@@ -70,8 +70,8 @@ export class Todos extends React.PureComponent<TodosProps, TodosState> {
     try {
       const dueDate = this.calculateDueDate()
       const newTodo = await createTodo(this.props.auth.getIdToken(), {
-        name: this.state.newTodoName,
-        dueDate
+        todoName: this.state.newTodoName,
+        dueDate: dueDate
       })
       this.setState({
         todos: [...this.state.todos, newTodo],
@@ -97,7 +97,7 @@ export class Todos extends React.PureComponent<TodosProps, TodosState> {
     try {
       const todo = this.state.todos[pos]
       await patchTodo(this.props.auth.getIdToken(), todo.todoId, {
-        name: todo.name,
+        todoName: todo.todoName,
         dueDate: todo.dueDate,
         done: !todo.done
       })
@@ -186,7 +186,7 @@ export class Todos extends React.PureComponent<TodosProps, TodosState> {
         <Grid.Column width={16}>
           <Input
             action={{
-              color: 'orange',
+              color: 'twitter',
               labelPosition: 'left',
               icon: 'add',
               content: 'Search todo',
@@ -218,7 +218,7 @@ export class Todos extends React.PureComponent<TodosProps, TodosState> {
                 />
               </Grid.Column>
               <Grid.Column width={10} verticalAlign="middle">
-                {todo.name}
+                {todo.todoName}
               </Grid.Column>
               <Grid.Column width={3} floated="right">
                 {todo.dueDate}
