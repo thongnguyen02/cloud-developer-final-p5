@@ -9,7 +9,7 @@ const XAWS = AWSXRay.captureAWS(AWS)
 
 export class TodosAccess {
     constructor(
-        private readonly docClient: DocumentClient = new AWS.DynamoDB.DocumentClient(),
+        private readonly docClient: DocumentClient = new XAWS.DynamoDB.DocumentClient(),
         private readonly todosTable = process.env.TODOS_TABLE,
         private readonly todosIndex = process.env.TODOS_CREATED_AT_INDEX,
         private readonly logger = createLogger('todos-access')) {
