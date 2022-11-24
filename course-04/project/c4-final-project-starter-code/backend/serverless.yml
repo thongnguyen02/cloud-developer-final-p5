@@ -1,6 +1,6 @@
 org: thongnq2
-app: yes
-service: serverless-final-app
+app: thongnq2
+service: capstone-serverless-v1
 
 plugins:
   - serverless-webpack
@@ -12,15 +12,12 @@ plugins:
 provider:
   name: aws
   runtime: nodejs12.x
-  # lambdaHashingVersion: '20201221'
-
+  lambdaHashingVersion: '20201221'
   stage: ${opt:stage, 'dev'}
   region: ${opt:region, 'us-east-1'}
-
   tracing:
     lambda: true
     apiGateway: true
-
   # Use these variables in the functions and resouorces section below. For example, 
   # ${self:provider.environment.ATTACHMENT_S3_BUCKET}
   environment:
@@ -29,26 +26,20 @@ provider:
     ATTACHMENT_S3_BUCKET: serverless-c4-final-images-236133360132-${self:provider.stage}
     SIGNED_URL_EXPIRATION: 300
     SLS_DEBUG: src/logs
-
   logs:
     # Enable API Gateway logs
     restApi: true
-
   iam:
     role:
       statements:
         - Effect: Allow
           Action:
-            - xray:PutTelemetryRecords
-            - xray:PutTraceSegments
-            - logs:PutLogEvents
-            - logs:CreateLogStream
-            - logs:CreateLogGroup
-          Resource: "*"
-        - Effect: Allow
-          Action:
-            - dynamodb:Query
-          Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODOS_TABLE}/index/${self:provider.environment.TODOS_CREATED_AT_INDEX}
+            - 'xray:PutTelemetryRecords'
+            - 'xray:PutTraceSegments'
+            - 'logs:PutLogEvents'
+            - 'logs:CreateLogStream'
+            - 'logs:CreateLogGroup'
+          Resource: '*'
 
 custom:
   documentation:
@@ -63,10 +54,16 @@ custom:
         schema: ${file(models/create-todo-model.json)}   
 
 functions:
-
   Auth:
     handler: src/lambda/auth/auth0Authorizer.handler
-
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - 'logs:PutLogEvents'
+          - 'logs:CreateLogStream'
+          - 'logs:CreateLogGroup'
+        Resource:
+          - '*'
   # TODO: Configure this function - 
   # Provide iamRoleStatements property for performing Actions on DynamoDB
   GetTodos:
@@ -83,7 +80,10 @@ functions:
           - dynamodb:Scan
           - dynamodb:Query
         Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODOS_TABLE}
-
+      - Effect: Allow
+        Action:
+          - dynamodb:Query
+        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODOS_TABLE}/index/${self:provider.environment.TODOS_CREATED_AT_INDEX}
 
   # TODO: Configure this function - 
   # Provide iamRoleStatements property. Decide the Actions and AWS Resource. 
@@ -112,6 +112,10 @@ functions:
           - dynamodb:Query
           - dynamodb:PutItem
         Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODOS_TABLE}
+      - Effect: Allow
+        Action:
+          - dynamodb:Query
+        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODOS_TABLE}/index/${self:provider.environment.TODOS_CREATED_AT_INDEX}
 
   # TODO: Configure this function
   # Provide property for setting up CORS, Authorizer, iamRoleStatements, and request schemas
@@ -205,12 +209,12 @@ resources:
       Properties:
         ResponseParameters:
           gatewayresponse.header.Access-Control-Allow-Origin: "'*'"
-          gatewayresponse.header.Access-Control-Allow-Headers: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
-          gatewayresponse.header.Access-Control-Allow-Methods: "'GET,OPTIONS,POST'"
+          gatewayresponse.header.Access-Control-Allow-Headers: "'*'"
+          gatewayresponse.header.Access-Control-Allow-Methods: "'*'"
+          gatewayresponse.header.Access-Control-Allow-Credentials: "'true'"
         ResponseType: DEFAULT_4XX
         RestApiId:
           Ref: ApiGatewayRestApi
-
     RequestBodyValidator:
       Type: AWS::ApiGateway::RequestValidator
       Properties:
@@ -239,6 +243,8 @@ resources:
             KeyType: RANGE
         BillingMode: PAY_PER_REQUEST
         TableName: ${self:provider.environment.TODOS_TABLE}
+        StreamSpecification:
+          StreamViewType: NEW_IMAGE
         LocalSecondaryIndexes:
           - IndexName: ${self:provider.environment.TODOS_CREATED_AT_INDEX}
             KeySchema:
